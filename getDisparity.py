@@ -117,9 +117,9 @@ print ("\nGenerating the 3D map...")
 #Get new downsampled width and height 
 h,w = img_2_downsampled.shape[:2]
 
-#Load focal length. 
-# focal_length = np.load('./camera_params/FocalLength.npy')
-focal_length = 978.52229369
+#Load focal length from focal_length.txt.
+f = open('focal_length.txt')
+focal_length = float(f.read())
 
 #Perspective transformation matrix
 #This transformation matrix is from the openCV documentation, didn't seem to work for me. 
