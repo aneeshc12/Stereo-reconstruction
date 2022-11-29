@@ -97,7 +97,7 @@ stereo = cv2.StereoSGBM_create(minDisparity= min_disp,
 	numDisparities = num_disp,
 	blockSize = 5,
 	uniquenessRatio = 5,
-	speckleWindowSize = 5,
+	speckleWindowSize = 15,
 	speckleRange = 5,
 	disp12MaxDiff = 2,
 	P1 = 8*3*win_size**2,#8*3*win_size**2,
@@ -118,7 +118,8 @@ print ("\nGenerating the 3D map...")
 h,w = img_2_downsampled.shape[:2]
 
 #Load focal length. 
-focal_length = np.load('./camera_params/FocalLength.npy')
+# focal_length = np.load('./camera_params/FocalLength.npy')
+focal_length = 978.52229369
 
 #Perspective transformation matrix
 #This transformation matrix is from the openCV documentation, didn't seem to work for me. 
