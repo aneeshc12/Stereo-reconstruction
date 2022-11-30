@@ -25,16 +25,32 @@ stereo = cv2.StereoBM_create()
 img_path1 = './Image_pairs/NukitL.jpeg'
 img_path2 = './Image_pairs/NukitR.jpeg'
 
-while True:
- 
-  # Capturing and storing left and right camera images
-  imgR = cv2.imread(img_path1)
-  imgL = cv2.imread(img_path2)
-   
+# Capturing and storing left and right camera images
+imgR = cv2.imread(img_path1)
+imgL = cv2.imread(img_path2)
+
+imgR_gray = cv2.cvtColor(imgR,cv2.COLOR_BGR2GRAY)
+imgL_gray = cv2.cvtColor(imgL,cv2.COLOR_BGR2GRAY)
+
+def downsample_image(image, reduce_factor):
+	for i in range(0,reduce_factor):
+		#Check if image is color or grayscale
+		if len(image.shape) > 2:
+			row,col = image.shape[:2]
+		else:
+			row,col = image.shape
+
+		image = cv2.pyrDown(image, dstsize= (col//2, row // 2))
+	return image
+
+imgR_gray = downsample_image(imgR_gray,3)
+imgL_gray = downsample_image(imgL_gray,3)
+
+
+
+while True:   
   # Proceed only if the frames have been captured
   if 1 and 1:
-    imgR_gray = cv2.cvtColor(imgR,cv2.COLOR_BGR2GRAY)
-    imgL_gray = cv2.cvtColor(imgL,cv2.COLOR_BGR2GRAY)
  
     # Updating the parameters based on the trackbar positions
     numDisparities = cv2.getTrackbarPos('numDisparities','disp')*16
@@ -49,6 +65,10 @@ while True:
     disp12MaxDiff = cv2.getTrackbarPos('disp12MaxDiff','disp')
     minDisparity = cv2.getTrackbarPos('minDisparity','disp')
      
+
+    if(numDisparities == 0):
+        numDisparities += 1
+
     # Setting the updated parameters before computing disparity map
     stereo.setNumDisparities(numDisparities)
     stereo.setBlockSize(blockSize)
