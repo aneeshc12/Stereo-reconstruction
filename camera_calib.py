@@ -43,7 +43,7 @@ for fname in images:
         img = cv2.drawChessboardCorners(img, CHECKERBOARD, corners2, ret)
      
     cv2.imshow('img',img)
-    cv2.waitKey(0)
+    cv2.waitKey(100)
  
 cv2.destroyAllWindows()
  
@@ -66,3 +66,8 @@ print("rvecs : \n")
 print(rvecs)
 print("tvecs : \n")
 print(tvecs)
+
+# save focal length to a txt file
+focal_length = open("focal_length.txt","w")
+focal_length.write(str(mtx[0][0]))
+focal_length.close()
