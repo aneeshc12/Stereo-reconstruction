@@ -1,0 +1,58 @@
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9757966 
+
+Plane sweeping, 27, 28
+PathMatch
+
+READ THIS
+
+https://www.hindawi.com/journals/js/2016/8742920/
+
+
+ *
+local vs global
+window |  energy function across the whole image
+
+global: markov random field modelling -> iterative
+
+ *
+pixel based:
+    - absolute difference (AD and TAD)
+    - squared difference
+
+area based:
+    - sum od absolute distance
+    - sum squared dist
+    - normalied cross correlation
+    - rank transform
+    - census transform
+
+    (assume all pixels within a window have similar disparities) * can abuse?
+
+    - Recently, Miron et al. [26] tested various matching cost functions in their stereo disparity map algorithms for intelligent vehicle applications we test for all scenes?
+
+feature based:
+    -Sharma et al sift variant
+
+
+cost aggregation:
+
+refinement:
+    - regularization
+    - occlusion filling
+    - interpolation (?)
+
+    - gaussian convolution
+
+
+semiglobal???
+
+global
+    - belief propagation
+    - graph cut
+
+**** https://pramod-atre.medium.com/disparity-map-computation-in-python-and-c-c8113c63d701 ******* 
+^^ base code? we can tweak
+
+
+-- dataset 
+Middlebury Computer Vision pages [35], KITTI Vision Benchmark [114], and DIBRIS [115].
