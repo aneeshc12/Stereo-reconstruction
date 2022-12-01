@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import os
 import glob
+import PIL.Image as Image
+import PIL.ExifTags as ExifTags
  
 # Defining the dimensions of checkerboard
 CHECKERBOARD = (10,7)
@@ -55,19 +57,37 @@ passing the value of known 3D points (objpoints)
 and corresponding pixel coordinates of the 
 detected corners (imgpoints)
 """
-ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
- 
-print(ret)
-print("Camera matrix : \n")
-print(mtx)
-print("dist : \n")
-print(dist)
-print("rvecs : \n")
-print(rvecs)
-print("tvecs : \n")
-print(tvecs)
+ret, K, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
-# save focal length to a txt file
-focal_length = open("focal_length.txt","w")
-focal_length.write(str(mtx[0][0]))
-focal_length.close()
+#Save parameters into numpy file
+np.save("./camera_params/ret", ret)
+np.save("./camera_params/K", K)
+np.save("./camera_params/dist", dist)
+np.save("./camera_params/rvecs", rvecs)
+np.save("./camera_params/tvecs", tvecs)
+#Get focal length in decimal form
+np.save("./camera_params/FocalLength", K[0][0])
+
+# Calculate the pixel distance between principal points of the camera pair
+pixel_distance = np.sqrt((K[0][2] - K[1][2])**2 + (K[1][2] - K[1][2])**2)
+
+print(pixel_distance)
+
+# Calculate the baseline distance between the cameras
+baseline_distance = 0.5 * 0.0254 * 0.5 * 0.0254 * pixel_distance / (K[0][0] + K[1][0])
+
+print(baseline_distance)
+
+print("Camera matrix : ", K)
+print("dist : ", dist)
+print("rvecs : ", rvecs)
+print("tvecs : ", tvecs)
+print("Focal length : ", K[0][0])
+print(ret)
+
+# Load new images
+imgL = cv2.imread('Image_pairs/tableL.png',0)
+
+# Get the image size
+h, w = imgL.shape[:2]
+print(h, w)

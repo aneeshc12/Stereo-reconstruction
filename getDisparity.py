@@ -5,11 +5,10 @@ from tqdm import tqdm
 import PIL.ExifTags
 import PIL.Image
 from matplotlib import pyplot as plt 
-
+import open3d as o3d
 #=====================================
 # Function declarations
 #=====================================
-
 #Function to create point cloud file
 def create_output(vertices, colors, filename):
 	colors = colors.reshape(-1,3)
@@ -47,62 +46,50 @@ def downsample_image(image, reduce_factor):
 # Stereo 3D reconstruction 
 #=========================================================
 
+
+#=========================================================
+# Stereo 3D reconstruction 
+#=========================================================
 #Load camera parameters
-# ret = np.load('./camera_params/ret.npy')
-# K = np.load('./camera_params/K.npy')
-# dist = np.load('./camera_params/dist.npy')
-
-# ret = np.load('./camera_params/ret.npy')
-K = np.asarray([[978.52229369,   0.        , 639.02910507],
-                [  0.        , 979.16757469, 466.6593098 ],
-                [  0.        ,   0.        ,   1.        ]])
-# dist = np.load('./camera_params/dist.npy')
-
+ret = np.load('camera_params/ret.npy')
+K = np.load('camera_params/K.npy')
+dist = np.load('camera_params/dist.npy')
 #Specify image paths
-img_path1 = './Image_pairs/NukitL.jpeg'
-img_path2 = './Image_pairs/NukitR.jpeg'
-
+img_path1 = 'Image_pairs/NukitL.jpeg'
+img_path2 = 'Image_pairs/NukitR.jpeg'
 #Load pictures
 img_1 = cv2.imread(img_path1)
 img_2 = cv2.imread(img_path2)
-
-#Get height and width. Note: It assumes that both pictures are the same size. They HAVE to be same size and height. 
+#Get height and width. Note: It assumes that both pictures are the same size. They HAVE to be same size 
 h,w = img_2.shape[:2]
 
 #Get optimal camera matrix for better undistortion 
+new_camera_matrix, roi = cv2.getOptimalNewCameraMatrix(K,dist,(w,h),1,(w,h))
 
-# new_camera_matrix, roi = cv2.getOptimalNewCameraMatrix(K,dist,(w,h),1,(w,h))
-
-# #Undistort images
-# img_1_undistorted = cv2.undistort(img_1, K, dist, None, new_camera_matrix)
-# img_2_undistorted = cv2.undistort(img_2, K, dist, None, new_camera_matrix)
+#Undistort images
+img_1_undistorted = cv2.undistort(img_1, K, dist, None, new_camera_matrix)
+img_2_undistorted = cv2.undistort(img_2, K, dist, None, new_camera_matrix)
 
 #Downsample each image 3 times (because they're too big)
-img_1_downsampled = downsample_image(img_1,0)
-img_2_downsampled = downsample_image(img_2,0)
-
-#cv2.imwrite('undistorted_left.jpg', img_1_downsampled)
-#cv2.imwrite('undistorted_right.jpg', img_2_downsampled)
-
+img_1_downsampled = downsample_image(img_1_undistorted,0)
+img_2_downsampled = downsample_image(img_2_undistorted,0)
 
 #Set disparity parameters
 #Note: disparity range is tuned according to specific parameters obtained through trial and error. 
-win_size = 3
-min_disp = -159
-max_disp = 83 #min_disp * 9
+win_size = 5
+min_disp = -64
+max_disp = 128 #min_disp * 9
 num_disp = max_disp - min_disp # Needs to be divisible by 16
-
 #Create Block matching object. 
 stereo = cv2.StereoSGBM_create(minDisparity= min_disp,
-	numDisparities = num_disp,
-	blockSize = 5,
-	uniquenessRatio = 5,
-	speckleWindowSize = 15,
-	speckleRange = 5,
-	disp12MaxDiff = 2,
-	P1 = 8*3*win_size**2,#8*3*win_size**2,
-	P2 =32*3*win_size**2) #32*3*win_size**2)
-
+ numDisparities = num_disp,
+ blockSize = 2,
+ uniquenessRatio = 1,
+ speckleWindowSize = 7,
+ speckleRange = 50,
+ disp12MaxDiff = 200,
+ P1 = 8*3*win_size**2,#8*3*win_size**2,
+ P2 =32*3*win_size**2) #32*3*win_size**2)
 #Compute disparity map
 print ("\nComputing the disparity  map...")
 disparity_map = stereo.compute(img_1_downsampled, img_2_downsampled)
@@ -153,3 +140,6 @@ output_file = 'reconstructed.ply'
 #Generate point cloud 
 print ("\n Creating the output file... \n")
 create_output(output_points, output_colors, output_file)
+
+
+
